@@ -42,13 +42,13 @@ jobs:
     - name: Test with pytest
       run: |
         # 检查是否有标准pytest测试文件
-        if (Get-ChildItem -Recurse -Include "test_*.py","*_test.py" | Measure-Object).Count -gt 0 {
+        if ((Get-ChildItem -Recurse -Include "test_*.py","*_test.py" | Measure-Object).Count -gt 0) {
           pytest --cov=. --cov-report=xml
         } else {
           # 如果没有标准测试文件，运行自定义测试脚本
           python test.py
           # 创建空的覆盖率报告，避免上传步骤失败
-          echo '<?xml version="1.0" ?><coverage version="7.0" timestamp="1234567890" lines-valid="0" lines-covered="0" line-rate="0" branches-covered="0" branches-valid="0" branch-rate="0" complexity="0"></coverage>' > coverage.xml
+          Set-Content -Path coverage.xml -Value '<?xml version="1.0" ?><coverage version="7.0" timestamp="1234567890" lines-valid="0" lines-covered="0" line-rate="0" branches-covered="0" branches-valid="0" branch-rate="0" complexity="0"></coverage>'
         }
       shell: powershell
         
