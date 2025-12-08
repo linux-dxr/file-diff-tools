@@ -23,11 +23,24 @@ jobs:
         
     - name: Install dependencies
       run: |
+        # 显示当前工作目录和文件列表
+        Write-Host "Current working directory: $(Get-Location)"
+        Write-Host "Files in current directory:"
+        Get-ChildItem
+        
         # 升级pip并设置超时时间
         python -m pip install --upgrade pip --timeout 60
         
-        # 安装基础依赖，使用国内镜像源提高下载速度
-        pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt --timeout 300
+        # 检查requirements.txt是否存在
+        if (Test-Path "requirements.txt") {
+          Write-Host "Installing from requirements.txt"
+          # 安装基础依赖，使用国内镜像源提高下载速度
+          pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt --timeout 300
+        } else {
+          Write-Host "requirements.txt not found, installing dependencies manually"
+          # 手动安装基础依赖
+          pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ PyQt6 pandas --timeout 300
+        }
         
         # 安装测试依赖
         pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ pytest pytest-cov flake8 --timeout 300
@@ -74,11 +87,24 @@ jobs:
         
     - name: Install dependencies
       run: |
+        # 显示当前工作目录和文件列表
+        Write-Host "Current working directory: $(Get-Location)"
+        Write-Host "Files in current directory:"
+        Get-ChildItem
+        
         # 升级pip并设置超时时间
         python -m pip install --upgrade pip --timeout 60
         
-        # 安装基础依赖
-        pip install -i https://pypi.org/simple/ -r requirements.txt --timeout 300
+        # 检查requirements.txt是否存在
+        if (Test-Path "requirements.txt") {
+          Write-Host "Installing from requirements.txt"
+          # 安装基础依赖
+          pip install -i https://pypi.org/simple/ -r requirements.txt --timeout 300
+        } else {
+          Write-Host "requirements.txt not found, installing dependencies manually"
+          # 手动安装基础依赖
+          pip install -i https://pypi.org/simple/ PyQt6 pandas --timeout 300
+        }
         
         # 安装PyInstaller
         pip install -i https://pypi.org/simple/ pyinstaller --timeout 300
