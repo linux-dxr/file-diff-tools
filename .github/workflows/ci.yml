@@ -7,11 +7,26 @@ on:
     branches: [ main ]
 
 jobs:
+<<<<<<< HEAD
   test-windows:
     runs-on: windows-latest
     strategy:
       matrix:
         python-version: ['3.9', '3.10', '3.11']
+=======
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+        exclude:
+          # Reduce matrix size for faster CI
+          - os: macos-latest
+            python-version: '3.8'
+          - os: macos-latest
+            python-version: '3.9'
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
     
     steps:
     - uses: actions/checkout@v4
@@ -25,10 +40,18 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+<<<<<<< HEAD
         pip install pytest pytest-cov flake8
         
     - name: Lint with flake8
       run: |
+=======
+        pip install pytest pytest-cov
+        
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
         # Stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
@@ -39,7 +62,11 @@ jobs:
         pytest --cov=. --cov-report=xml
         
     - name: Upload coverage to Codecov
+<<<<<<< HEAD
       if: matrix.python-version == '3.11'
+=======
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.xml
@@ -47,8 +74,16 @@ jobs:
         name: codecov-umbrella
         
   build-test:
+<<<<<<< HEAD
     runs-on: windows-latest
     needs: test-windows
+=======
+    runs-on: ${{ matrix.os }}
+    needs: test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
     
     steps:
     - uses: actions/checkout@v4
@@ -66,6 +101,7 @@ jobs:
         
     - name: Test build with PyInstaller
       run: |
+<<<<<<< HEAD
         # 使用spec文件构建
         pyinstaller FileDiffTools.spec
         
@@ -82,3 +118,16 @@ jobs:
           exit 1
         }
       shell: powershell
+=======
+        pyinstaller --onefile --windowed --name="FileDiffTools" main.py
+        
+    - name: Test executable
+      run: |
+        # Basic test to ensure the executable can run without errors
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          timeout 10s ./dist/FileDiffTools.exe --version || echo "Executable started successfully"
+        else
+          timeout 10s ./dist/FileDiffTools --version || echo "Executable started successfully"
+        fi
+      shell: bash
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f

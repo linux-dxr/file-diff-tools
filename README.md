@@ -27,6 +27,10 @@
 - Python 3.7+
 - PyQt6
 - pandas
+<<<<<<< HEAD
+=======
+- openpyxl (用于Excel文件处理)
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
 
 ### 安装方法
 
@@ -51,6 +55,14 @@ pip install -r requirements.txt
 **Windows用户：**
 双击 `start.bat` 文件即可启动应用程序。
 
+<<<<<<< HEAD
+=======
+**Linux/macOS用户：**
+```bash
+chmod +x start.sh
+./start.sh
+```
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
 
 ### 方法2：使用Python脚本
 
@@ -161,6 +173,10 @@ result = two_file_diff(
 
 - **PyQt6**: 用于构建图形用户界面
 - **pandas**: 用于数据处理和比较
+<<<<<<< HEAD
+=======
+- **openpyxl**: 用于Excel文件读写
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
 - **多线程**: 使用QThread避免界面卡顿
 
 ## 构建和发布
@@ -170,6 +186,7 @@ result = two_file_diff(
 如果您想从源代码构建可执行文件：
 
 1. **安装构建依赖**:
+<<<<<<< HEAD
 
    ```bash
    pip install pyinstaller
@@ -181,6 +198,18 @@ result = two_file_diff(
    ```
 3. **获取可执行文件**:
 
+=======
+   ```bash
+   pip install pyinstaller
+   ```
+
+2. **运行构建脚本**:
+   ```bash
+   python build.py
+   ```
+
+3. **获取可执行文件**:
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
    - Windows可执行文件位于 `dist/FileDiffTools.exe`
    - 发布包位于 `FileDiffTools-YYYYMMDD-HHMM-windows.zip`
 
@@ -204,15 +233,24 @@ pyinstaller --onefile --windowed --icon=assets/icons/app.ico --name="FileDiffToo
 - **自动发布**: 创建新的标签（如v1.0.0）时自动构建并发布可执行文件
 
 发布流程：
+<<<<<<< HEAD
 
 1. 创建并推送标签:
 
+=======
+1. 创建并推送标签:
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
    ```bash
    git tag v1.0.0
    git push origin v1.0.0
    ```
+<<<<<<< HEAD
 2. GitHub Actions将自动：
 
+=======
+
+2. GitHub Actions将自动：
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
    - 构建Windows可执行文件
    - 创建发布包
    - 上传到GitHub Releases
@@ -226,13 +264,21 @@ pyinstaller --onefile --windowed --icon=assets/icons/app.ico --name="FileDiffToo
 ### 环境设置
 
 1. **克隆仓库**:
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
    ```bash
    git clone https://github.com/your-username/file-diff-tools.git
    cd file-diff-tools
    ```
+<<<<<<< HEAD
 2. **创建虚拟环境**:
 
+=======
+
+2. **创建虚拟环境**:
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
    ```bash
    python -m venv venv
    # Windows
@@ -240,8 +286,13 @@ pyinstaller --onefile --windowed --icon=assets/icons/app.ico --name="FileDiffToo
    # Linux/Mac
    source venv/bin/activate
    ```
+<<<<<<< HEAD
 3. **安装依赖**:
 
+=======
+
+3. **安装依赖**:
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
    ```bash
    pip install -r requirements.txt
    ```
@@ -272,7 +323,11 @@ pytest
 
 ## 更新日志
 
+<<<<<<< HEAD
 ### v1.0.0 (2025-12-08)
+=======
+### v1.0.0 (2024-01-01)
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
 
 - 初始版本发布
 - 支持Excel、CSV、TXT文件比较
@@ -286,6 +341,7 @@ pytest
 
 ## 联系方式
 
+<<<<<<< HEAD
 - 项目主页: https://github.com/linux-dxr/file-diff-tools
 - 问题反馈: https://github.com/linux-dxr/file-diff-tools/issues
 - 邮箱: d19091730135@gmail.com
@@ -293,3 +349,12 @@ pytest
 ## 致谢
 
 感谢所有为本项目做出贡献的开发者和用户！
+=======
+- 项目主页: https://github.com/yourusername/file-diff-tools
+- 问题反馈: https://github.com/yourusername/file-diff-tools/issues
+- 邮箱: your.email@example.com
+
+## 致谢
+
+感谢所有为本项目做出贡献的开发者和用户！
+>>>>>>> 1aa9785be6cadf7180d6c1289a64c5870dc63e5f
