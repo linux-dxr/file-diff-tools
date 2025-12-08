@@ -30,9 +30,13 @@ jobs:
         
     - name: Update version in files
       run: |
+        # 将版本号转换为逗号分隔的格式
+        VERSION_COMMA=$(echo "${{ github.event.inputs.version }}" | sed 's/\./, /g')
+        echo "Version with commas: $VERSION_COMMA"
+        
         # 更新 version_info.txt
-        sed -i "s/filevers=(.*/filevers=(${{ github.event.inputs.version | replace '.' ', ' }},0)/" version_info.txt
-        sed -i "s/prodvers=(.*/prodvers=(${{ github.event.inputs.version | replace '.' ', ' }},0)/" version_info.txt
+        sed -i "s/filevers=(.*/filevers=($VERSION_COMMA,0)/" version_info.txt
+        sed -i "s/prodvers=(.*/prodvers=($VERSION_COMMA,0)/" version_info.txt
         sed -i "s/FileVersion=.*/FileVersion=${{ github.event.inputs.version }}.0/" version_info.txt
         sed -i "s/ProductVersion=.*/ProductVersion=${{ github.event.inputs.version }}.0/" version_info.txt
         

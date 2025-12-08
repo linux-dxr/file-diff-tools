@@ -66,7 +66,7 @@ jobs:
         echo "Installer creation skipped for now"
         
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: FileDiffTools-${{ steps.version.outputs.version }}-windows
         path: |
