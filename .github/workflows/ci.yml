@@ -23,6 +23,8 @@ jobs:
         
     - name: Install dependencies
       run: |
+        # 设置UTF-8编码
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
         # 显示当前工作目录和文件列表
         Write-Host "Current working directory: $(Get-Location)"
         Write-Host "Files in current directory:"
@@ -87,6 +89,8 @@ jobs:
         
     - name: Install dependencies
       run: |
+        # 设置UTF-8编码
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
         # 显示当前工作目录和文件列表
         Write-Host "Current working directory: $(Get-Location)"
         Write-Host "Files in current directory:"

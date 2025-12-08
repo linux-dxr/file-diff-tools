@@ -22,6 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         # 显示当前工作目录和文件列表
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
         Write-Host "Current directory: $(Get-Location)"
         Write-Host "Files in current directory:"
         Get-ChildItem
