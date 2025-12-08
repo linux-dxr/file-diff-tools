@@ -1,0 +1,68 @@
+name: Update Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+      create_release:
+        description: 'Create a release after updating version'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Update version in files
+      run: |
+        # 更新 version_info.txt
+        sed -i "s/filevers=(.*/filevers=(${{ github.event.inputs.version | replace '.' ', ' }},0)/" version_info.txt
+        sed -i "s/prodvers=(.*/prodvers=(${{ github.event.inputs.version | replace '.' ', ' }},0)/" version_info.txt
+        sed -i "s/FileVersion=.*/FileVersion=${{ github.event.inputs.version }}.0/" version_info.txt
+        sed -i "s/ProductVersion=.*/ProductVersion=${{ github.event.inputs.version }}.0/" version_info.txt
+        
+        # 更新 CHANGELOG.md
+        today=$(date +%Y-%m-%d)
+        echo "## [${{ github.event.inputs.version }}] - $today" > temp_changelog
+        echo "" >> temp_changelog
+        echo "### 新增" >> temp_changelog
+        echo "- 待添加" >> temp_changelog
+        echo "" >> temp_changelog
+        cat CHANGELOG.md >> temp_changelog
+        mv temp_changelog CHANGELOG.md
+        
+        # 提交更改
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add version_info.txt CHANGELOG.md
+        git commit -m "chore: 更新版本至 ${{ github.event.inputs.version }}"
+        
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        
+    - name: Create tag and release
+      if: ${{ github.event.inputs.create_release == 'true' }}
+      run: |
+        # 创建标签
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git tag -a "v${{ github.event.inputs.version }}" -m "Release version ${{ github.event.inputs.version }}"
+        git push origin "v${{ github.event.inputs.version }}"

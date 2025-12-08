@@ -1,0 +1,88 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "List of files:"
+        ls -la
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+      shell: powershell
+        
+    - name: Build with PyInstaller
+      run: |
+        # 使用spec文件构建，这样可以包含所有必要的资源文件
+        pyinstaller FileDiffTools.spec
+        
+    - name: Create release directory
+      run: |
+        mkdir release
+        copy dist\FileDiffTools.exe release\
+        copy README.md release\
+        copy LICENSE release\
+        # 复制示例文件，作为独立资源供用户参考
+        xcopy examples release\examples /E /I
+        
+    - name: Generate version info
+      id: version
+      run: |
+        if ("${{ github.ref }}" -like "refs/tags/*") {
+          $version = "${{ github.ref }}" -replace "refs/tags/", ""
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+        } else {
+          $date = Get-Date -Format "yyyyMMdd-HHmm"
+          echo "version=nightly-$date" >> $env:GITHUB_OUTPUT
+        }
+      shell: powershell
+      
+    - name: Create ZIP archive
+      run: |
+        cd release
+        7z a -tzip ../FileDiffTools-${{ steps.version.outputs.version }}-windows.zip *
+        
+    - name: Create Installer (Optional)
+      run: |
+        # Create a simple installer script using NSIS if needed in the future
+        echo "Installer creation skipped for now"
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: FileDiffTools-${{ steps.version.outputs.version }}-windows
+        path: |
+          FileDiffTools-${{ steps.version.outputs.version }}-windows.zip
+          release\FileDiffTools.exe
+        retention-days: 30
+        
+    - name: Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          FileDiffTools-${{ steps.version.outputs.version }}-windows.zip
+          release\FileDiffTools.exe
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
