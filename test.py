@@ -11,6 +11,12 @@ import sys
 import pandas as pd
 from file_diff import two_file_diff
 
+# 设置输出编码，解决Windows环境下的中文显示问题
+if sys.platform == 'win32':
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+
 
 def test_file_diff():
     """测试文件差异比较功能"""

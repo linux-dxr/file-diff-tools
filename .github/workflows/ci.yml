@@ -56,6 +56,10 @@ jobs:
         
     - name: Test with pytest
       run: |
+        # 设置UTF-8编码
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+        $env:PYTHONIOENCODING = "utf-8"
+        
         # 检查是否有标准pytest测试文件
         if ((Get-ChildItem -Recurse -Include "test_*.py","*_test.py" | Measure-Object).Count -gt 0) {
           pytest --cov=. --cov-report=xml
