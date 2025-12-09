@@ -70,6 +70,29 @@ jobs:
         # Create a simple installer script using NSIS if needed in the future
         echo "Installer creation skipped for now"
         
+    - name: Verify release files
+      run: |
+        Write-Host "Current directory: $(Get-Location)"
+        Write-Host "Files in release directory:"
+        Get-ChildItem release -Recurse
+        
+        Write-Host "Verifying exe file exists:"
+        if (Test-Path "release\FileDiffTools.exe") {
+          Write-Host "✓ FileDiffTools.exe exists"
+          Get-Item "release\FileDiffTools.exe" | Format-List
+        } else {
+          Write-Host "✗ FileDiffTools.exe NOT found"
+        }
+        
+        Write-Host "Verifying ZIP file exists:"
+        if (Test-Path "FileDiffTools-${{ steps.version.outputs.version }}-windows.zip") {
+          Write-Host "✓ ZIP file exists"
+          Get-Item "FileDiffTools-${{ steps.version.outputs.version }}-windows.zip" | Format-List
+        } else {
+          Write-Host "✗ ZIP file NOT found"
+        }
+      shell: powershell
+        
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -85,7 +108,9 @@ jobs:
       with:
         files: |
           FileDiffTools-${{ steps.version.outputs.version }}-windows.zip
-          release\FileDiffTools.exe
+          release/FileDiffTools.exe
+          release/README.md
+          release/LICENSE
         draft: false
         prerelease: false
         generate_release_notes: true
