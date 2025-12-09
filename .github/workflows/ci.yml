@@ -38,10 +38,12 @@ jobs:
           Write-Host "Installing from requirements.txt"
           # 安装基础依赖，使用国内镜像源提高下载速度
           pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt --timeout 300
+          # 确保安装openpyxl，这是pandas读取Excel文件所必需的
+          pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ openpyxl --timeout 300
         } else {
           Write-Host "requirements.txt not found, installing dependencies manually"
-          # 手动安装基础依赖
-          pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ PyQt6 pandas --timeout 300
+          # 手动安装基础依赖，包括openpyxl
+          pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ PyQt6 pandas openpyxl --timeout 300
         }
         
         # 安装测试依赖
@@ -108,10 +110,12 @@ jobs:
           Write-Host "Installing from requirements.txt"
           # 安装基础依赖
           pip install -i https://pypi.org/simple/ -r requirements.txt --timeout 300
+          # 确保安装openpyxl，这是pandas读取Excel文件所必需的
+          pip install -i https://pypi.org/simple/ openpyxl --timeout 300
         } else {
           Write-Host "requirements.txt not found, installing dependencies manually"
-          # 手动安装基础依赖
-          pip install -i https://pypi.org/simple/ PyQt6 pandas --timeout 300
+          # 手动安装基础依赖，包括openpyxl
+          pip install -i https://pypi.org/simple/ PyQt6 pandas openpyxl --timeout 300
         }
         
         # 安装PyInstaller
