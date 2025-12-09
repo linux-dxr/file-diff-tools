@@ -13,19 +13,7 @@ on:
         type: boolean
 
 jobs:
-  update:
-    uses: ./.github/workflows/install-and-build.yml
-    with:
-      python-version: '3.11'
-      install-openpyxl: false
-      install-pyinstaller: false
-      run-build: false
-      cache-key-suffix: '-update-version'
-      pip-timeout: '60'
-    secrets: inherit
-    
   update-files:
-    needs: update
     runs-on: ubuntu-latest
     
     steps:
