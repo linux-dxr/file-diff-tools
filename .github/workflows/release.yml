@@ -5,10 +5,8 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
-
 permissions:
   contents: write
-
 jobs:
   build:
     uses: ./.github/workflows/install-and-build.yml
@@ -73,6 +71,7 @@ jobs:
           FileDiffTools-${{ steps.version.outputs.version }}-windows.zip
           release\FileDiffTools.exe
           release\README.md
+          release\LICENSE
         draft: false
         prerelease: false
         generate_release_notes: true
