@@ -6,15 +6,14 @@ on:
       version:
         description: 'Version number (e.g., 1.0.0)'
         required: true
-        default: '1.0.0'
       create_release:
         description: 'Create a release after updating version'
         required: true
-        default: true
+        default: 'false'
         type: boolean
 
 jobs:
-  update-version:
+  update:
     runs-on: ubuntu-latest
     
     steps:
@@ -22,51 +21,48 @@ jobs:
       uses: actions/checkout@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
         
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
         
-    - name: Update version in files
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-update-version
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
       run: |
-        # 将版本号转换为逗号分隔的格式
-        VERSION_COMMA=$(echo "${{ github.event.inputs.version }}" | sed 's/\./, /g')
-        echo "Version with commas: $VERSION_COMMA"
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
         
-        # 更新 version_info.txt
-        sed -i "s/filevers=(.*/filevers=($VERSION_COMMA,0)/" version_info.txt
-        sed -i "s/prodvers=(.*/prodvers=($VERSION_COMMA,0)/" version_info.txt
-        sed -i "s/FileVersion=.*/FileVersion=${{ github.event.inputs.version }}.0/" version_info.txt
-        sed -i "s/ProductVersion=.*/ProductVersion=${{ github.event.inputs.version }}.0/" version_info.txt
+    - name: Update version files
+      run: |
+        # Update version_info.txt
+        echo "${{ github.event.inputs.version }}" > version_info.txt
         
-        # 更新 CHANGELOG.md
-        today=$(date +%Y-%m-%d)
-        echo "## [${{ github.event.inputs.version }}] - $today" > temp_changelog
-        echo "" >> temp_changelog
-        echo "### 新增" >> temp_changelog
-        echo "- 待添加" >> temp_changelog
-        echo "" >> temp_changelog
-        cat CHANGELOG.md >> temp_changelog
-        mv temp_changelog CHANGELOG.md
+        # Update CHANGELOG.md
+        echo "## [${{ github.event.inputs.version }}] - $(date +'%Y-%m-%d')" >> CHANGELOG.md
+        echo "" >> CHANGELOG.md
+        echo "### Added" >> CHANGELOG.md
+        echo "- Version bump to ${{ github.event.inputs.version }}" >> CHANGELOG.md
+        echo "" >> CHANGELOG.md
         
-        # 提交更改
+        # Commit changes
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add version_info.txt CHANGELOG.md
-        git commit -m "chore: 更新版本至 ${{ github.event.inputs.version }}"
-        
-    - name: Push changes
-      uses: actions/push@v5
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
+        git commit -m "Bump version to ${{ github.event.inputs.version }}"
+        git push
         
     - name: Create tag and release
-      if: ${{ github.event.inputs.create_release == 'true' }}
+      if: github.event.inputs.create_release == 'true'
       run: |
-        # 创建标签
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        # Create and push tag
         git tag -a "v${{ github.event.inputs.version }}" -m "Release version ${{ github.event.inputs.version }}"
         git push origin "v${{ github.event.inputs.version }}"

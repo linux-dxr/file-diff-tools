@@ -2,12 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  test-windows:
+  test:
     runs-on: windows-latest
     strategy:
       matrix:
@@ -21,54 +21,32 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-test-${{ matrix.python-version }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
     - name: Install dependencies
       run: |
-        # 设置UTF-8编码
-        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-        # 显示当前工作目录和文件列表
-        Write-Host "Current working directory: $(Get-Location)"
-        Write-Host "Files in current directory:"
-        Get-ChildItem
-        
-        # 升级pip并设置超时时间
         python -m pip install --upgrade pip --timeout 60
-        
-        # 检查requirements.txt是否存在
-        if (Test-Path "requirements.txt") {
-          Write-Host "Installing from requirements.txt"
-          # 安装基础依赖，使用国内镜像源提高下载速度
-          pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt --timeout 300
-          # 确保安装openpyxl，这是pandas读取Excel文件所必需的
-          pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ openpyxl --timeout 300
-        } else {
-          Write-Host "requirements.txt not found, installing dependencies manually"
-          # 手动安装基础依赖，包括openpyxl
-          pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ PyQt6 pandas openpyxl --timeout 300
-        }
-        
-        # 安装测试依赖
-        pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ pytest pytest-cov flake8 --timeout 300
+        pip install -r requirements.txt --timeout 300
+        pip install pytest pytest-cov flake8 --timeout 300
         
     - name: Lint with flake8
       run: |
-        # Stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
         
     - name: Test with pytest
       run: |
-        # 设置UTF-8编码
-        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
         $env:PYTHONIOENCODING = "utf-8"
-        
-        # 检查是否有标准pytest测试文件
         if ((Get-ChildItem -Recurse -Include "test_*.py","*_test.py" | Measure-Object).Count -gt 0) {
           pytest --cov=. --cov-report=xml
         } else {
-          # 如果没有标准测试文件，运行自定义测试脚本
           python test.py
-          # 创建空的覆盖率报告，避免上传步骤失败
           Set-Content -Path coverage.xml -Value '<?xml version="1.0" ?><coverage version="7.0" timestamp="1234567890" lines-valid="0" lines-covered="0" line-rate="0" branches-covered="0" branches-valid="0" branch-rate="0" complexity="0"></coverage>'
         }
       shell: powershell
@@ -82,47 +60,8 @@ jobs:
         name: codecov-umbrella
         
   build-test:
-    runs-on: windows-latest
-    needs: test-windows
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-        
-    - name: Install dependencies
-      run: |
-        # 设置UTF-8编码
-        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-        # 显示当前工作目录和文件列表
-        Write-Host "Current working directory: $(Get-Location)"
-        Write-Host "Files in current directory:"
-        Get-ChildItem
-        
-        # 升级pip并设置超时时间
-        python -m pip install --upgrade pip --timeout 60
-        
-        # 安装基础依赖
-        pip install -i https://pypi.org/simple/ -r requirements.txt --timeout 300
-        
-    - name: Test build with PyInstaller
-      run: |
-        # 使用spec文件构建
-        pyinstaller FileDiffTools.spec
-        
-    - name: Test executable
-      run: |
-        # 基本测试，确保可执行文件可以运行
-        echo "Testing executable..."
-        if (Test-Path "dist\FileDiffTools.exe") {
-          echo "Executable found at dist\FileDiffTools.exe"
-          # 尝试获取可执行文件信息
-          Get-ItemProperty dist\FileDiffTools.exe | Format-List
-        } else {
-          echo "ERROR: Executable not found!"
-          exit 1
-        }
-      shell: powershell
+    uses: ./.github/workflows/install-and-build.yml
+    with:
+      python-version: '3.11'
+      cache-key-suffix: '-build-test'
+    secrets: inherit

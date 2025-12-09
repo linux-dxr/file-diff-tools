@@ -8,36 +8,25 @@ on:
 
 jobs:
   build:
+    uses: ./.github/workflows/install-and-build.yml
+    with:
+      python-version: '3.11'
+      cache-key-suffix: '-release'
+    secrets: inherit
+    
+  package:
+    needs: build
     runs-on: windows-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
       with:
-        python-version: '3.11'
-        
-    - name: Install dependencies
-      run: |
-        # 显示当前工作目录和文件列表
-        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-        Write-Host "Current directory: $(Get-Location)"
-        Write-Host "Files in current directory:"
-        Get-ChildItem
-        
-        # 升级pip
-        python -m pip install --upgrade pip --timeout 60
-        
-        # 安装基础依赖
-        pip install -r requirements.txt --timeout 300
-      shell: powershell
-        
-    - name: Build with PyInstaller
-      run: |
-        # 使用spec文件构建，这样可以包含所有必要的资源文件
-        pyinstaller FileDiffTools.spec
+        name: build-artifacts
+        path: dist
         
     - name: Create release directory
       run: |
@@ -45,7 +34,6 @@ jobs:
         copy dist\FileDiffTools.exe release\
         copy README.md release\
         copy LICENSE release\
-        # 复制示例文件，作为独立资源供用户参考
         xcopy examples release\examples /E /I
         
     - name: Generate version info
@@ -64,34 +52,6 @@ jobs:
       run: |
         cd release
         7z a -tzip ../FileDiffTools-${{ steps.version.outputs.version }}-windows.zip *
-        
-    - name: Create Installer (Optional)
-      run: |
-        # Create a simple installer script using NSIS if needed in the future
-        echo "Installer creation skipped for now"
-        
-    - name: Verify release files
-      run: |
-        Write-Host "Current directory: $(Get-Location)"
-        Write-Host "Files in release directory:"
-        Get-ChildItem release -Recurse
-        
-        Write-Host "Verifying exe file exists:"
-        if (Test-Path "release\FileDiffTools.exe") {
-          Write-Host "✓ FileDiffTools.exe exists"
-          Get-Item "release\FileDiffTools.exe" | Format-List
-        } else {
-          Write-Host "✗ FileDiffTools.exe NOT found"
-        }
-        
-        Write-Host "Verifying ZIP file exists:"
-        if (Test-Path "FileDiffTools-${{ steps.version.outputs.version }}-windows.zip") {
-          Write-Host "✓ ZIP file exists"
-          Get-Item "FileDiffTools-${{ steps.version.outputs.version }}-windows.zip" | Format-List
-        } else {
-          Write-Host "✗ ZIP file NOT found"
-        }
-      shell: powershell
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v4

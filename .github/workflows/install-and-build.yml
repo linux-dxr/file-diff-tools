@@ -1,0 +1,59 @@
+name: Install and Build
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: 'Python version to use'
+        required: false
+        default: '3.11'
+        type: string
+      install-openpyxl:
+        description: 'Whether to install openpyxl'
+        required: false
+        default: true
+        type: boolean
+      cache-key-suffix:
+        description: 'Suffix for cache key'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  install-and-build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python-version }}
+        
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}${{ inputs.cache-key-suffix }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+      shell: powershell
+        
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller FileDiffTools.spec
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: dist/
+        retention-days: 7
