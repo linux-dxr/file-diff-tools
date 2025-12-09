@@ -33,7 +33,7 @@ StringFileInfo(
     StringStruct(u'FileDescription', u'Excel文件差异比较工具'),
     StringStruct(u'FileVersion', u'1.0.0.0'),
     StringStruct(u'InternalName', u'FileDiffTools'),
-    StringStruct(u'LegalCopyright', u'Copyright (C) 2023'),
+    StringStruct(u'LegalCopyright', u'Copyright (C) 2025'),
     StringStruct(u'OriginalFilename', u'FileDiffTools.exe'),
     StringStruct(u'ProductName', u'FileDiffTools'),
     StringStruct(u'ProductVersion', u'1.0.0.0')])
