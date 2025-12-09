@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       create_release:
@@ -52,11 +50,13 @@ jobs:
         
     - name: Debug context
       run: |
-        echo "Event name: ${{ github.event_name }}"
-        echo "Ref: ${{ github.ref }}"
-        echo "Repository: ${{ github.repository }}"
-        echo "Create release input: ${{ github.event.inputs.create_release }}"
-        echo "Release name input: ${{ github.event.inputs.release_name }}"
+        Write-Host "Event name: ${{ github.event_name }}"
+        Write-Host "Ref: ${{ github.ref }}"
+        Write-Host "Repository: ${{ github.repository }}"
+        Write-Host "Create release input: ${{ github.event.inputs.create_release }}"
+        Write-Host "Release name input: ${{ github.event.inputs.release_name }}"
+        Write-Host "Is tag push: ${{ startsWith(github.ref, 'refs/tags/') }}"
+        Write-Host "Is manual trigger with create release: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true' }}"
       shell: powershell
       
     - name: Generate version info
@@ -64,11 +64,21 @@ jobs:
       run: |
         if ("${{ github.ref }}" -like "refs/tags/*") {
           $version = "${{ github.ref }}" -replace "refs/tags/", ""
+          Write-Host "Version from tag: $version"
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+        } elseif ("${{ github.event_name }}" -eq "workflow_dispatch") {
+          $date = Get-Date -Format "yyyyMMdd-HHmm"
+          $version = "manual-$date"
+          Write-Host "Version from manual trigger: $version"
           echo "version=$version" >> $env:GITHUB_OUTPUT
         } else {
           $date = Get-Date -Format "yyyyMMdd-HHmm"
-          echo "version=nightly-$date" >> $env:GITHUB_OUTPUT
+          $version = "nightly-$date"
+          Write-Host "Version from date: $version"
+          echo "version=$version" >> $env:GITHUB_OUTPUT
         }
+        Write-Host "GitHub ref: ${{ github.ref }}"
+        Write-Host "Event name: ${{ github.event_name }}"
       shell: powershell
       
     - name: Create ZIP archive
@@ -86,7 +96,7 @@ jobs:
         retention-days: 30
         
     - name: Release
-      if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
+      if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
       uses: softprops/action-gh-release@v1
       with:
         files: |
@@ -95,14 +105,14 @@ jobs:
           release\README.md
           release\LICENSE
         draft: false
-        prerelease: ${{ github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/tags/*') }}
+        prerelease: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/tags/*' }}
         generate_release_notes: true
         token: ${{ secrets.GITHUB_TOKEN }}
         name: ${{ github.event.inputs.release_name || format('FileDiffTools {0}', steps.version.outputs.version) }}
         body: |
           ## 版本 ${{ steps.version.outputs.version }}
           
-          ${{ (github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/tags/*')) && '这是预发布版本。' || '这是正式发布版本。' }}
+          ${{ (github.event_name == 'workflow_dispatch' && github.ref != 'refs/tags/*') && '这是预发布版本。' || '这是正式发布版本。' }}
           
           ### 下载
           - Windows可执行文件: [FileDiffTools.exe](release/FileDiffTools.exe)
