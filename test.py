@@ -117,7 +117,20 @@ if __name__ == "__main__":
     # 运行命令行测试
     test_file_diff()
 
-    # 询问是否运行GUI测试
-    choice = input("\n是否运行GUI测试? (y/n): ").lower()
-    if choice == "y":
-        test_gui()
+    # 检查是否在CI环境中运行，如果是则跳过GUI测试
+    is_ci_environment = (
+        os.environ.get("CI", "false").lower() == "true"
+        or os.environ.get("GITHUB_ACTIONS", "false").lower() == "true"
+    )
+
+    if not is_ci_environment:
+        # 询问是否运行GUI测试
+        try:
+            choice = input("\n是否运行GUI测试? (y/n): ").lower()
+            if choice == "y":
+                test_gui()
+        except EOFError:
+            # 处理非交互式环境中的输入错误
+            print("\n检测到非交互式环境，跳过GUI测试")
+    else:
+        print("\n检测到CI环境，自动跳过GUI测试")
