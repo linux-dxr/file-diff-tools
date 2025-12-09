@@ -4,7 +4,20 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - main
   workflow_dispatch:
+    inputs:
+      create_release:
+        description: '是否创建Release'
+        required: false
+        default: true
+        type: boolean
+      release_name:
+        description: 'Release名称（留空则自动生成）'
+        required: false
+        default: ''
+        type: string
 permissions:
   contents: write
 jobs:
@@ -37,6 +50,15 @@ jobs:
         copy LICENSE release\
         xcopy examples release\examples /E /I
         
+    - name: Debug context
+      run: |
+        echo "Event name: ${{ github.event_name }}"
+        echo "Ref: ${{ github.ref }}"
+        echo "Repository: ${{ github.repository }}"
+        echo "Create release input: ${{ github.event.inputs.create_release }}"
+        echo "Release name input: ${{ github.event.inputs.release_name }}"
+      shell: powershell
+      
     - name: Generate version info
       id: version
       run: |
@@ -64,7 +86,7 @@ jobs:
         retention-days: 30
         
     - name: Release
-      if: startsWith(github.ref, 'refs/tags/')
+      if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
       uses: softprops/action-gh-release@v1
       with:
         files: |
@@ -73,6 +95,22 @@ jobs:
           release\README.md
           release\LICENSE
         draft: false
-        prerelease: false
+        prerelease: ${{ github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/tags/*') }}
         generate_release_notes: true
         token: ${{ secrets.GITHUB_TOKEN }}
+        name: ${{ github.event.inputs.release_name || format('FileDiffTools {0}', steps.version.outputs.version) }}
+        body: |
+          ## 版本 ${{ steps.version.outputs.version }}
+          
+          ${{ (github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/tags/*')) && '这是预发布版本。' || '这是正式发布版本。' }}
+          
+          ### 下载
+          - Windows可执行文件: [FileDiffTools.exe](release/FileDiffTools.exe)
+          - 完整压缩包: [FileDiffTools-${{ steps.version.outputs.version }}-windows.zip](FileDiffTools-${{ steps.version.outputs.version }}-windows.zip)
+          
+          ### 安装说明
+          1. 下载FileDiffTools.exe或完整压缩包
+          2. 如果下载压缩包，解压后运行FileDiffTools.exe
+          
+          ### 更新内容
+          请查看[CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)了解详细更新内容。
