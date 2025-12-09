@@ -19,50 +19,30 @@
 
 ![应用截图](docs/screenshot1.png)
 ![应用截图2](docs/screenshot2.png)
+
 ## 安装
 
 ### 环境要求
 
 - Python 3.7+
-- PyQt6
-- pandas
+- windows环境
 
-### 安装方法
+### 安装和使用方法
 
-#### 方法1：克隆仓库（推荐）
+#### 方法1：直接下载（推荐）
+
+1. 下载最新版本的压缩包（里面包含测试文件和exe程序）
+2. 下载最新的exe程序直接运行
+
+#### 方法2：克隆仓库
 
 ```bash
+
 git clone https://github.com/linux-dxr/file-diff-tools.git
 cd file-diff-tools
 pip install -r requirements.txt
+python main.py或者python file_diff_gui.py
 ```
-
-#### 方法2：直接下载
-
-1. 下载最新版本的压缩包
-2. 解压到任意目录
-3. 安装依赖：`pip install -r requirements.txt`
-
-## 使用方法
-
-### 方法1：使用启动脚本（推荐）
-
-**Windows用户：**
-双击 `start.bat` 文件即可启动应用程序。
-
-### 方法2：使用Python脚本
-
-```bash
-python main.py
-```
-
-### 方法3：直接运行GUI模块
-
-```bash
-python file_diff_gui.py
-```
-
-## 使用说明
 
 ### 文件比较模式
 
@@ -109,9 +89,6 @@ result = two_file_diff(
     output_report=True,
     report_path="diff_report.csv"
 )
-
-print(f"完全一致的行数: {len(result['identical'])}")
-print(f"有差异的行数: {len(result['mismatch'])}")
 ```
 
 ### 示例2：比较同一Excel文件中的两个Sheet
@@ -176,7 +153,3 @@ result = two_file_diff(
 - 项目主页: https://github.com/linux-dxr/file-diff-tools
 - 问题反馈: https://github.com/linux-dxr/file-diff-tools/issues
 - 邮箱: d19091730135@gmail.com
-
-## 致谢
-
-感谢所有为本项目做出贡献的开发者和用户！
