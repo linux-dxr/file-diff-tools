@@ -17,8 +17,8 @@
 
 ## 截图
 
-![应用截图](docs/screenshot.png)
-
+![应用截图](docs/screenshot1.png)
+![应用截图2](docs/screenshot2.png)
 ## 安装
 
 ### 环境要求
