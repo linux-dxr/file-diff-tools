@@ -193,23 +193,6 @@ class ExcelDiffGUI(QMainWindow):
         scroll_layout = QVBoxLayout()
         scroll_content.setLayout(scroll_layout)
 
-        # 比较模式选择
-        mode_group = QGroupBox("比较模式")
-        mode_layout = QHBoxLayout()
-        mode_group.setLayout(mode_layout)
-
-        self.file_mode_radio = QRadioButton("文件比较模式")
-        self.file_mode_radio.setChecked(True)
-        self.file_mode_radio.toggled.connect(self.on_mode_changed)
-        self.sheet_mode_radio = QRadioButton("Sheet比较模式")
-        self.sheet_mode_radio.toggled.connect(self.on_mode_changed)
-
-        mode_layout.addWidget(self.file_mode_radio)
-        mode_layout.addWidget(self.sheet_mode_radio)
-        mode_layout.addStretch()
-
-        scroll_layout.addWidget(mode_group)
-
         # 文件类型选择
         file_type_group = QGroupBox("文件类型")
         file_type_layout = QHBoxLayout()
@@ -224,6 +207,26 @@ class ExcelDiffGUI(QMainWindow):
         file_type_layout.addStretch()
 
         scroll_layout.addWidget(file_type_group)
+
+        # 比较模式选择
+        self.mode_group = QGroupBox("比较模式")
+        mode_layout = QHBoxLayout()
+        self.mode_group.setLayout(mode_layout)
+
+        self.file_mode_radio = QRadioButton("文件比较模式")
+        self.file_mode_radio.setChecked(True)
+        self.file_mode_radio.toggled.connect(self.on_mode_changed)
+        self.sheet_mode_radio = QRadioButton("Sheet比较模式")
+        self.sheet_mode_radio.toggled.connect(self.on_mode_changed)
+
+        mode_layout.addWidget(self.file_mode_radio)
+        mode_layout.addWidget(self.sheet_mode_radio)
+        mode_layout.addStretch()
+
+        # 初始状态下隐藏比较模式选择
+        self.mode_group.hide()
+
+        scroll_layout.addWidget(self.mode_group)
 
         # 文件选择区域
         self.file_selection_group = QGroupBox("文件选择")
@@ -418,8 +421,8 @@ class ExcelDiffGUI(QMainWindow):
         else:
             self.file_selection_group.show()
             self.sheet_selection_group.show()
-            self.file2_label.setText("文件路径:")
-            self.file2_path_edit.setPlaceholderText("选择包含多个Sheet的Excel文件...")
+            self.file2_label.setText("文件2:")
+            self.file2_path_edit.setPlaceholderText("选择第二个文件...")
             self.file2_browse_btn.show()
 
     def on_file_type_changed(self):
@@ -431,11 +434,17 @@ class ExcelDiffGUI(QMainWindow):
             self.delimiter_edit.hide()
             # 隐藏分隔符标签
             self.delimiter_label.hide()
+            # 显示比较模式选择（仅Excel文件支持Sheet比较模式）
+            self.mode_group.show()
         else:
             self.delimiter_edit.setEnabled(True)
             self.delimiter_edit.show()
             # 显示分隔符标签
             self.delimiter_label.show()
+            # 隐藏比较模式选择（非Excel文件只支持文件比较模式）
+            self.mode_group.hide()
+            # 强制切换到文件比较模式
+            self.file_mode_radio.setChecked(True)
 
     def browse_file1(self):
         """浏览第一个文件"""
@@ -708,6 +717,7 @@ class ExcelDiffGUI(QMainWindow):
                     self.results_table.insertRow(row)
                     self.results_table.setItem(row, 0, QTableWidgetItem(item))
                     row += 1
+
     def clear_filter(self):
         """清除筛选"""
         self.filter_edit.clear()
