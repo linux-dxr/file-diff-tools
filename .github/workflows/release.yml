@@ -30,19 +30,8 @@ jobs:
         # 升级pip
         python -m pip install --upgrade pip --timeout 60
         
-        # 检查requirements.txt是否存在
-        if (Test-Path "requirements.txt") {
-          Write-Host "Installing from requirements.txt"
-          # 安装基础依赖
-          pip install -r requirements.txt --timeout 300
-        } else {
-          Write-Host "requirements.txt not found, installing dependencies manually"
-          # 手动安装基础依赖
-          pip install PyQt6 pandas openpyxl --timeout 300
-        }
-        
-        # 安装PyInstaller
-        pip install pyinstaller --timeout 300
+        # 安装基础依赖
+        pip install -r requirements.txt --timeout 300
       shell: powershell
         
     - name: Build with PyInstaller
