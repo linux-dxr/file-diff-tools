@@ -263,7 +263,7 @@ def two_file_diff(
             f"# 生成时间: {timestamp}",
             f"# 比较对象: {comparison_description}",
             f"# 关键列: {key_column}",
-            f"# 共同列: {', '.join(common_columns)}",
+            f"# 共同列({len(common_columns)}个): {'; '.join(common_columns)}",
             f"# 数据源1: {os.path.basename(file1_path)} (类型: {sheet1_display})",
             f"# 数据源2: {os.path.basename(file2_path)} (类型: {sheet2_display})",
             f"# 统计信息:",
@@ -274,20 +274,23 @@ def two_file_diff(
             "",
         ]
 
-        # 创建差异数据的DataFrame
+        # 创建差异数据的DataFrame，格式与test.py一致
         diff_data = []
-        for item in results["mismatch"]:
-            diff_data.append({"差异详情": item})
-
+        
         for item in results["not_in_file1"]:
-            diff_data.append({"差异详情": f"仅在数据源2中存在: {item}"})
+            diff_data.append({"差异类型": "仅在文件2中", "详情": item})
 
         for item in results["not_in_file2"]:
-            diff_data.append({"差异详情": f"仅在数据源1中存在: {item}"})
+            diff_data.append({"差异类型": "仅在文件1中", "详情": item})
+
+        for item in results["mismatch"]:
+            diff_data.append({"差异类型": "不匹配", "详情": item})
+
+        
 
         # 如果没有差异，添加一条说明
         if not diff_data:
-            diff_data.append({"差异详情": "没有发现差异"})
+            diff_data.append({"差异类型": "无差异", "详情": "没有发现差异"})
 
         diff_df = pd.DataFrame(diff_data)
 
@@ -297,8 +300,8 @@ def two_file_diff(
             for line in header_comments:
                 f.write(line + "\n")
 
-            # 写入CSV数据，使用line_terminator参数避免额外空行
-            diff_df.to_csv(f, index=False, encoding="utf-8-sig", line_terminator="\n")
+            # 写入CSV数据，使用lineterminator参数避免额外空行
+            diff_df.to_csv(f, index=False, encoding="utf-8-sig", lineterminator="\n")
 
         print(f"📝 差异报告已保存至: {report_file}")
 

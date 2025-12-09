@@ -12,10 +12,11 @@ import pandas as pd
 from file_diff import two_file_diff
 
 # 设置输出编码，解决Windows环境下的中文显示问题
-if sys.platform == 'win32':
+if sys.platform == "win32":
     import codecs
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+    sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
 
 
 def test_file_diff():
@@ -34,12 +35,23 @@ def test_file_diff():
     file2 = os.path.join(examples_dir, "employees_modified.xlsx")
 
     if os.path.exists(file1) and os.path.exists(file2):
-        result = two_file_diff(file1, file2)
-        print(f"  - 比较完成，共发现 {len(result)} 处差异")
+        result = two_file_diff(file1, file2, key_column="员工ID")
+        print(f"  - 比较完成，共发现 {len(result.get('mismatch', []))} 处差异")
 
         # 保存结果
         output_file = os.path.join(examples_dir, "employees_diff_result.csv")
-        result.to_csv(output_file, index=False, encoding="utf-8-sig")
+        # 将结果字典转换为DataFrame以便保存
+        result_df = pd.DataFrame(
+            {
+                "差异类型": ["不匹配"] * len(result.get("mismatch", []))
+                + ["仅在文件2中"] * len(result.get("not_in_file1", []))
+                + ["仅在文件1中"] * len(result.get("not_in_file2", [])),
+                "详情": result.get("mismatch", [])
+                + result.get("not_in_file1", [])
+                + result.get("not_in_file2", []),
+            }
+        )
+        result_df.to_csv(output_file, index=False, encoding="utf-8-sig")
         print(f"  - 结果已保存到: {output_file}")
     else:
         print("  - 测试文件不存在，跳过测试")
@@ -52,12 +64,23 @@ def test_file_diff():
     file2 = os.path.join(examples_dir, "products_modified.xlsx")
 
     if os.path.exists(file1) and os.path.exists(file2):
-        result = two_file_diff(file1, file2)
-        print(f"  - 比较完成，共发现 {len(result)} 处差异")
+        result = two_file_diff(file1, file2, key_column="产品ID")
+        print(f"  - 比较完成，共发现 {len(result.get('mismatch', []))} 处差异")
 
         # 保存结果
         output_file = os.path.join(examples_dir, "products_diff_result.csv")
-        result.to_csv(output_file, index=False, encoding="utf-8-sig")
+        # 将结果字典转换为DataFrame以便保存
+        result_df = pd.DataFrame(
+            {
+                "差异类型": ["不匹配"] * len(result.get("mismatch", []))
+                + ["仅在文件2中"] * len(result.get("not_in_file1", []))
+                + ["仅在文件1中"] * len(result.get("not_in_file2", [])),
+                "详情": result.get("mismatch", [])
+                + result.get("not_in_file1", [])
+                + result.get("not_in_file2", []),
+            }
+        )
+        result_df.to_csv(output_file, index=False, encoding="utf-8-sig")
         print(f"  - 结果已保存到: {output_file}")
     else:
         print("  - 测试文件不存在，跳过测试")

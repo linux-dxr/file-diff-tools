@@ -612,29 +612,6 @@ class ExcelDiffGUI(QMainWindow):
         # 添加结果数据
         row = 0
 
-        # 添加差异数据 - 显示在顶部以提高可读性
-        if self.original_results["mismatch"]:
-            # 应用筛选
-            filtered_mismatch = []
-            if filter_text:
-                for item in self.original_results["mismatch"]:
-                    if filter_text in item.lower():
-                        filtered_mismatch.append(item)
-            else:
-                filtered_mismatch = self.original_results["mismatch"]
-
-            if filtered_mismatch:
-                self.results_table.insertRow(row)
-                mismatch_item = QTableWidgetItem("差异详情:")
-                mismatch_item.setBackground(QColor(255, 200, 200))  # 浅红色背景
-                self.results_table.setItem(row, 0, mismatch_item)
-                row += 1
-
-                for item in filtered_mismatch:
-                    self.results_table.insertRow(row)
-                    self.results_table.setItem(row, 0, QTableWidgetItem(item))
-                    row += 1
-
         # 添加统计信息 - 根据复选框状态决定是否显示
         if show_stats:
             self.results_table.insertRow(row)
@@ -709,6 +686,28 @@ class ExcelDiffGUI(QMainWindow):
                 self.results_table.setItem(row, 0, QTableWidgetItem(f"{item}"))
                 row += 1
 
+        # 添加差异数据 - 显示在顶部以提高可读性
+        if self.original_results["mismatch"]:
+            # 应用筛选
+            filtered_mismatch = []
+            if filter_text:
+                for item in self.original_results["mismatch"]:
+                    if filter_text in item.lower():
+                        filtered_mismatch.append(item)
+            else:
+                filtered_mismatch = self.original_results["mismatch"]
+
+            if filtered_mismatch:
+                self.results_table.insertRow(row)
+                mismatch_item = QTableWidgetItem("差异详情:")
+                mismatch_item.setBackground(QColor(255, 200, 200))  # 浅红色背景
+                self.results_table.setItem(row, 0, mismatch_item)
+                row += 1
+
+                for item in filtered_mismatch:
+                    self.results_table.insertRow(row)
+                    self.results_table.setItem(row, 0, QTableWidgetItem(item))
+                    row += 1
     def clear_filter(self):
         """清除筛选"""
         self.filter_edit.clear()
