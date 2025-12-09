@@ -14,7 +14,6 @@
 - 📝 生成详细的差异报告
 - 🎨 现代化的用户界面设计
 - ⚡ 多线程处理，避免界面卡顿
-- 🌍 跨平台支持（Windows、macOS、Linux）
 
 ## 截图
 
@@ -33,7 +32,7 @@
 #### 方法1：克隆仓库（推荐）
 
 ```bash
-git clone https://github.com/yourusername/file-diff-tools.git
+git clone https://github.com/linux-dxr/file-diff-tools.git
 cd file-diff-tools
 pip install -r requirements.txt
 ```
@@ -50,7 +49,6 @@ pip install -r requirements.txt
 
 **Windows用户：**
 双击 `start.bat` 文件即可启动应用程序。
-
 
 ### 方法2：使用Python脚本
 
@@ -155,119 +153,9 @@ result = two_file_diff(
 - 报告文件使用CSV格式，但包含注释信息
 - 比较大文件时可能需要一些时间，请耐心等待
 
-## 技术实现
-
-本工具基于以下技术：
-
-- **PyQt6**: 用于构建图形用户界面
-- **pandas**: 用于数据处理和比较
-- **多线程**: 使用QThread避免界面卡顿
-
-## 构建和发布
-
-### 从源代码构建
-
-如果您想从源代码构建可执行文件：
-
-1. **安装构建依赖**:
-
-   ```bash
-   pip install pyinstaller
-   ```
-2. **运行构建脚本**:
-
-   ```bash
-   python build.py
-   ```
-3. **获取可执行文件**:
-
-   - Windows可执行文件位于 `dist/FileDiffTools.exe`
-   - 发布包位于 `FileDiffTools-YYYYMMDD-HHMM-windows.zip`
-
-### 手动使用PyInstaller
-
-您也可以直接使用PyInstaller构建：
-
-```bash
-# 使用spec文件构建（推荐）
-pyinstaller FileDiffTools.spec
-
-# 或者使用命令行参数
-pyinstaller --onefile --windowed --icon=assets/icons/app.ico --name="FileDiffTools" main.py
-```
-
-### 自动构建和发布
-
-项目使用GitHub Actions进行自动构建和发布：
-
-- **持续集成**: 每次推送到main或develop分支时运行测试
-- **自动发布**: 创建新的标签（如v1.0.0）时自动构建并发布可执行文件
-
-发布流程：
-
-1. 创建并推送标签:
-
-   ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
-   ```
-2. GitHub Actions将自动：
-
-   - 构建Windows可执行文件
-   - 创建发布包
-   - 上传到GitHub Releases
-
-### 下载预构建版本
-
-您可以从GitHub Releases页面下载预构建的可执行文件，无需安装Python环境。
-
-## 开发
-
-### 环境设置
-
-1. **克隆仓库**:
-   ```bash
-   git clone https://github.com/your-username/file-diff-tools.git
-   cd file-diff-tools
-   ```
-2. **创建虚拟环境**:
-
-   ```bash
-   python -m venv venv
-   # Windows
-   venv\Scripts\activate
-   # Linux/Mac
-   source venv/bin/activate
-   ```
-3. **安装依赖**:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-### 运行测试
-
-```bash
-# 运行所有测试
-python test.py
-
-# 或者使用pytest（如果已安装）
-pytest
-```
-
 ### 贡献
 
 欢迎贡献代码！请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详细信息。
-
-## 贡献
-
-欢迎贡献代码！请遵循以下步骤：
-
-1. Fork 本仓库
-2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开一个 Pull Request
 
 ## 更新日志
 

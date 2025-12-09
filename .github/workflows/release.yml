@@ -38,7 +38,7 @@ jobs:
         } else {
           Write-Host "requirements.txt not found, installing dependencies manually"
           # 手动安装基础依赖
-          pip install PyQt6 pandas --timeout 300
+          pip install PyQt6 pandas openpyxl --timeout 300
         }
         
         # 安装PyInstaller
