@@ -40,13 +40,39 @@ jobs:
         name: build-artifacts
         path: dist
         
+    - name: Debug dist directory
+      run: |
+        Write-Host "Listing files in dist directory:"
+        Get-ChildItem -Path dist -Recurse
+      shell: powershell
+        
     - name: Create release directory
       run: |
         mkdir release
-        copy dist\FileDiffTools.exe release\
+        # 检查并复制FileDiffTools.exe或FileDiffTools
+        if (Test-Path "dist\FileDiffTools.exe") {
+          copy "dist\FileDiffTools.exe" "release\FileDiffTools.exe"
+          Write-Host "Found and copied FileDiffTools.exe"
+        } elseif (Test-Path "dist\FileDiffTools") {
+          copy "dist\FileDiffTools" "release\FileDiffTools.exe"
+          Write-Host "Found FileDiffTools and copied as FileDiffTools.exe"
+        } else {
+          Write-Host "Error: FileDiffTools.exe or FileDiffTools not found in dist directory"
+          exit 1
+        }
         copy README.md release\
         copy LICENSE release\
         xcopy examples release\examples /E /I
+        
+    - name: Debug release directory
+      run: |
+        Write-Host "Listing files in dist directory:"
+        Get-ChildItem -Path dist -Recurse
+        Write-Host "Listing files in release directory:"
+        Get-ChildItem -Path release -Recurse
+        Write-Host "Checking if FileDiffTools.exe exists in release directory:"
+        Test-Path release\FileDiffTools.exe
+      shell: powershell
         
     - name: Debug context
       run: |
@@ -119,7 +145,7 @@ jobs:
           release\examples\*
         draft: false
         prerelease: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/tags/*' }}
-        generate_release_notes: true
+        generate_release_notes: false
         token: ${{ secrets.GITHUB_TOKEN }}
         name: ${{ github.event.inputs.release_name || format('FileDiffTools {0}', steps.version.outputs.version) }}
         tag_name: ${{ steps.version.outputs.version }}
