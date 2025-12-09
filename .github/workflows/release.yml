@@ -66,21 +66,33 @@ jobs:
           $version = "${{ github.ref }}" -replace "refs/tags/", ""
           Write-Host "Version from tag: $version"
           echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "is_tag=true" >> $env:GITHUB_OUTPUT
         } elseif ("${{ github.event_name }}" -eq "workflow_dispatch") {
           $date = Get-Date -Format "yyyyMMdd-HHmm"
           $version = "manual-$date"
           Write-Host "Version from manual trigger: $version"
           echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "is_tag=false" >> $env:GITHUB_OUTPUT
         } else {
           $date = Get-Date -Format "yyyyMMdd-HHmm"
           $version = "nightly-$date"
           Write-Host "Version from date: $version"
           echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "is_tag=false" >> $env:GITHUB_OUTPUT
         }
         Write-Host "GitHub ref: ${{ github.ref }}"
         Write-Host "Event name: ${{ github.event_name }}"
       shell: powershell
       
+    - name: Create tag for manual release
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true' && steps.version.outputs.is_tag == 'false'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git tag -f ${{ steps.version.outputs.version }}
+        git push origin ${{ steps.version.outputs.version }}
+      shell: powershell
+        
     - name: Create ZIP archive
       run: |
         cd release
@@ -104,11 +116,13 @@ jobs:
           release\FileDiffTools.exe
           release\README.md
           release\LICENSE
+          release\examples\*
         draft: false
         prerelease: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/tags/*' }}
         generate_release_notes: true
         token: ${{ secrets.GITHUB_TOKEN }}
         name: ${{ github.event.inputs.release_name || format('FileDiffTools {0}', steps.version.outputs.version) }}
+        tag_name: ${{ steps.version.outputs.version }}
         body: |
           ## 版本 ${{ steps.version.outputs.version }}
           
