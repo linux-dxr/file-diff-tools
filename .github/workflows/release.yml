@@ -153,11 +153,7 @@ jobs:
           ## 版本 ${{ steps.version.outputs.version }}
           
           ${{ (github.event_name == 'workflow_dispatch' && github.ref != 'refs/tags/*') && '这是预发布版本。' || '这是正式发布版本。' }}
-          
-          ### 下载
-          - Windows可执行文件: [FileDiffTools.exe](release/FileDiffTools.exe)
-          - 完整压缩包: [FileDiffTools-${{ steps.version.outputs.version }}-windows.zip](FileDiffTools-${{ steps.version.outputs.version }}-windows.zip)
-          
+        
           ### 安装说明
           1. 下载FileDiffTools.exe或完整压缩包
           2. 如果下载压缩包，解压后运行FileDiffTools.exe
