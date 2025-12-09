@@ -8,7 +8,7 @@ block_cipher = None
 
 # 分析主脚本
 a = Analysis(
-    ['main.py'],
+    ['main.py'],  # 只需要指定入口点，PyInstaller会自动跟踪导入的模块
     pathex=[],
     binaries=[],
     datas=[
@@ -16,21 +16,12 @@ a = Analysis(
         ('examples', 'examples'),  # 包含示例文件夹
     ],
     hiddenimports=[
-        'PyQt6.QtCore',
-        'PyQt6.QtGui',
-        'PyQt6.QtWidgets',
-        'pandas',
+        'openpyxl',
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[
-        'matplotlib',
-        'numpy',
-        'scipy',
-        'PIL',
-        'tkinter',
-    ],
+    excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,

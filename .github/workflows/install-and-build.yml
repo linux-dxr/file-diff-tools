@@ -8,8 +8,13 @@ on:
         required: false
         default: '3.11'
         type: string
-      install-openpyxl:
-        description: 'Whether to install openpyxl'
+      install-pyinstaller:
+        description: 'Whether to install PyInstaller'
+        required: false
+        default: true
+        type: boolean
+      run-build:
+        description: 'Whether to run PyInstaller build'
         required: false
         default: true
         type: boolean
@@ -17,6 +22,11 @@ on:
         description: 'Suffix for cache key'
         required: false
         default: ''
+        type: string
+      pip-timeout:
+        description: 'Timeout for pip install commands'
+        required: false
+        default: '300'
         type: string
 
 jobs:
@@ -42,16 +52,20 @@ jobs:
           
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pyinstaller
+        python -m pip install --upgrade pip --timeout ${{ inputs.pip-timeout }}
+        pip install -r requirements.txt --timeout ${{ inputs.pip-timeout }}
+        if ("${{ inputs.install-pyinstaller }}" -eq "true") {
+          pip install pyinstaller --timeout ${{ inputs.pip-timeout }}
+        }
       shell: powershell
         
     - name: Build with PyInstaller
+      if: inputs.run-build
       run: |
         pyinstaller FileDiffTools.spec
         
     - name: Upload build artifacts
+      if: inputs.run-build
       uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
