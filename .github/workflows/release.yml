@@ -60,10 +60,6 @@ jobs:
           Write-Host "Error: FileDiffTools.exe or FileDiffTools not found in dist directory"
           exit 1
         }
-        copy README.md release\
-        copy LICENSE release\
-        xcopy examples release\examples /E /I
-        
     - name: Debug release directory
       run: |
         Write-Host "Listing files in dist directory:"
@@ -140,9 +136,6 @@ jobs:
         files: |
           FileDiffTools-${{ steps.version.outputs.version }}-windows.zip
           release/FileDiffTools.exe
-          release/README.md
-          release/LICENSE
-          release/examples/*
         draft: false
         prerelease: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/tags/*' }}
         generate_release_notes: false
@@ -154,9 +147,6 @@ jobs:
           
           ${{ (github.event_name == 'workflow_dispatch' && github.ref != 'refs/tags/*') && '这是预发布版本。' || '这是正式发布版本。' }}
           
-          ### 安装说明
-          1. 下载FileDiffTools.exe或完整压缩包
-          2. 如果下载压缩包，解压后运行FileDiffTools.exe
+          请查看[README.md](https://github.com/${{ github.repository }}/blob/main/README.md)了解详细安装说明和使用方法。
           
-          ### 更新内容
-          请查看[CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)了解详细更新内容。
+          更新内容请查看[CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)。
