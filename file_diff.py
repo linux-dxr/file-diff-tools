@@ -178,7 +178,7 @@ def two_file_diff(
                     val2 = diff.loc[idx, (col, "self")]  # self = df2
                     val1 = diff.loc[idx, (col, "other")]  # other = df1
                     if pd.notna(val2) or pd.notna(val1):
-                        mismatch_cols.append(f"{col}: '{val2}' vs '{val1}'")
+                        mismatch_cols.append(f"{col}: '{val1}' vs '{val2}'")
                 if mismatch_cols:
                     msg = f"【{key_column}={idx}】 " + "; ".join(mismatch_cols)
                     results["mismatch"].append(msg)
